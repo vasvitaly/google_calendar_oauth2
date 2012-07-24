@@ -10,12 +10,12 @@ module GoogleCalendar
       @summary = attrs['summary']
       @status = attrs['status']
       @html_link = attrs['htmlLink']
-      @created_at = attrs['created']
-      @updated_at = attrs['updated']
+      @created_at = attrs['created'].to_time
+      @updated_at = attrs['updated'].to_time
       @calendar_id = attrs['calendar_id']
       @sequence = attrs['sequence']
-      @start_time = attrs['start']['dateTime']
-      @end_time = attrs['end']['dateTime']
+      @start_time = attrs['start']['dateTime'].to_time
+      @end_time = attrs['end']['dateTime'].to_time
     end
 
     alias attributes= initialize
@@ -31,15 +31,15 @@ module GoogleCalendar
         :summary => summary,
         :status => status,
         :html_link => html_link,
-        :created_at => created_at,
-        :updated_at => updated_at,
+        :created_at => created_at.to_time,
+        :updated_at => updated_at.to_time,
         :calendar_id => calendar_id,
         :sequence => sequence,
         :start => {
-          :dateTime => start_time
+          :dateTime => start_time.to_time
         },
         :end => { 
-          :dateTime => end_time
+          :dateTime => end_time.to_time
         }
       }
     end
