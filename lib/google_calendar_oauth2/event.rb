@@ -26,16 +26,16 @@ module GoogleCalendar
 
     def attributes
       {
-        id: id,
-        etag: etag,
-        summary: summary,
-        status: status,
-        html_link: html_link,
-        created_at: created_at,
-        updated_at: updated_at,
-        calendar_id: calendar_id,
-        sequence: sequence,
-        start: {
+        :id => id,
+        :etag => etag,
+        :summary => summary,
+        :status => status,
+        :html_link => html_link,
+        :created_at => created_at,
+        :updated_at => updated_at,
+        :calendar_id => calendar_id,
+        :sequence => sequence,
+        :start => {
           :dateTime => start_time
         },
         end: { 
@@ -45,7 +45,7 @@ module GoogleCalendar
     end
 
     def self.list(calendar_id, options={})
-      list = connection.execute(api_method: client.events.list, parameters: options.merge({ 'calendarId' => calendar_id }))
+      list = connection.execute(:api_method => client.events.list, :parameters => options.merge({ 'calendarId' => calendar_id }))
       events = []
       list.data.items.each do |event|
         events << new(event)
@@ -64,8 +64,8 @@ module GoogleCalendar
 
     def self.find_by_id(calendar_id, id)
       event = connection.execute(
-        api_method: client.events.get, 
-        parameters: { 
+        :api_method => client.events.get, 
+        :parameters => { 
           'calendarId' => calendar_id, 
           'eventId' => id 
         }
@@ -75,10 +75,10 @@ module GoogleCalendar
 
     def self.create(calendar_id, attrs)
       new connection.execute(
-        api_method: client.events.insert, 
-        parameters: { 'calendarId' => calendar_id }, 
-        body: [JSON.dump(attrs)], 
-        headers: {'Content-Type' => 'application/json'}
+        :api_method => client.events.insert, 
+        :parameters => { 'calendarId' => calendar_id }, 
+        :body => [JSON.dump(attrs)], 
+        :headers => {'Content-Type' => 'application/json'}
       ).data.to_hash.merge 'calendar_id' => calendar_id
     end
 
@@ -86,13 +86,13 @@ module GoogleCalendar
       self.sequence = self.sequence.nil? ? 1 : self.sequence + 1
       attrs = self.attributes.merge(attrs)
       result = Event.connection.execute( 
-        api_method: Event.client.events.update, 
-        parameters: { 
+        :api_method => Event.client.events.update, 
+        :parameters => { 
           'calendarId' => self.calendar_id, 
           'eventId' => self.id 
         }, 
-        body: [JSON.dump(attrs)], 
-        headers: {'Content-Type' => 'application/json'}
+        :body => [JSON.dump(attrs)], 
+        :headers => {'Content-Type' => 'application/json'}
       ).data.to_hash.merge('calendar_id' => self.calendar_id)
       self.attributes = result
       self
@@ -100,8 +100,8 @@ module GoogleCalendar
   
     def self.delete(calendar_id, event_id)
       connection.execute(
-        api_method: client.events.delete, 
-        parameters: { 
+        :api_method => client.events.delete, 
+        :parameters => { 
           'calendarId' => calendar_id, 
           'eventId' => event_id 
         }
