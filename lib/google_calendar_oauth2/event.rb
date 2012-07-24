@@ -44,8 +44,8 @@ module GoogleCalendar
       }
     end
 
-    def self.list(calendar_id)
-      list = connection.execute(api_method: client.events.list, parameters: { 'calendarId' => calendar_id })
+    def self.list(calendar_id, options={})
+      list = connection.execute(api_method: client.events.list, parameters: options.merge({ 'calendarId' => calendar_id }))
       events = []
       list.data.items.each do |event|
         events << new(event)
