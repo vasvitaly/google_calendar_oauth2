@@ -38,7 +38,7 @@ module GoogleCalendar
         :start => {
           :dateTime => start_time
         },
-        end: { 
+        :end => { 
           :dateTime => end_time
         }
       }
