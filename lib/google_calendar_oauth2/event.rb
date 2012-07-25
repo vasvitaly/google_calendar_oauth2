@@ -14,8 +14,8 @@ module GoogleCalendar
       @updated_at = attrs['updated'].to_time
       @calendar_id = attrs['calendar_id']
       @sequence = attrs['sequence']
-      @start_time = attrs['start']['dateTime'].to_time
-      @end_time = attrs['end']['dateTime'].to_time
+      @start_time = attrs['start']['dateTime'].present? ? attrs['start']['dateTime'].to_time : Date.today.to_time
+      @end_time = attrs['end']['dateTime'].present? ? attrs['end']['dateTime'].to_time : Date.today.to_time
     end
 
     alias attributes= initialize
