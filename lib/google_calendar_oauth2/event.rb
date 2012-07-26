@@ -5,17 +5,18 @@ module GoogleCalendar
     extend Connection
 
     def initialize(attrs)
+      dt_format = '%Y-%m-%dT%H:%M:%S%z'
       @id = attrs['id']
       @etag = attrs['etag']
       @summary = attrs['summary']
       @status = attrs['status']
       @html_link = attrs['htmlLink']
-      @created_at = attrs['created'].to_time
-      @updated_at = attrs['updated'].to_time
+      @created_at = DateTime.parse(attrs['created']).utc
+      @updated_at = DateTime.parse(attrs['updated']).utc
       @calendar_id = attrs['calendar_id']
       @sequence = attrs['sequence']
-      @start_time = attrs['start']['dateTime'].present? ? attrs['start']['dateTime'].to_time : Date.today.to_time
-      @end_time = attrs['end']['dateTime'].present? ? attrs['end']['dateTime'].to_time : Date.today.to_time
+      @start_time = attrs['start']['dateTime'].present? ? DateTime.parse(attrs['start']['dateTime']).utc : Date.today.to_time.utc
+      @end_time = attrs['end']['dateTime'].present? ? DateTime.parse(attrs['end']['dateTime']).utc : Date.today.to_time.utc
     end
 
     alias attributes= initialize
@@ -31,8 +32,8 @@ module GoogleCalendar
         :summary => summary,
         :status => status,
         :html_link => html_link,
-        :created_at => created_at.to_time,
-        :updated_at => updated_at.to_time,
+        :created_at => created_at,
+        :updated_at => updated_at,
         :calendar_id => calendar_id,
         :sequence => sequence,
         :start => {
@@ -45,6 +46,10 @@ module GoogleCalendar
     end
 
     def self.list(calendar_id, options={})
+      options.each_pair{|k,v| 
+        options[k] = v.strftime('%Y-%m-%dT%H:%M:%S-0000') if v.is_a?(Time) || v.is_a?(DateTime) || v.is_a?(Date) 
+      }
+
       list = connection.execute(:api_method => client.events.list, :parameters => options.merge({ 'calendarId' => calendar_id }))
       events = []
       list.data.items.each do |event|
