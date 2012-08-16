@@ -46,9 +46,7 @@ module GoogleCalendar
     end
 
     def self.list(calendar_id, options={})
-      options.each_pair{|k,v| 
-        options[k] = v.strftime('%Y-%m-%dT%H:%M:%S-0000') if v.is_a?(Time) || v.is_a?(DateTime) || v.is_a?(Date) 
-      }
+      options = convert_dates_in_options(options)
 
       list = connection.execute(:api_method => client.events.list, :parameters => options.merge({ 'calendarId' => calendar_id }))
       events = []
@@ -79,15 +77,17 @@ module GoogleCalendar
     end
 
     def self.create(calendar_id, attrs)
+      attrs = convert_dates_in_options(attrs)
       new connection.execute(
         :api_method => client.events.insert, 
         :parameters => { 'calendarId' => calendar_id }, 
-        :body => [JSON.dump(attrs)], 
+        :body => [attrs.to_json],  #JSON.dump()
         :headers => {'Content-Type' => 'application/json'}
       ).data.to_hash.merge 'calendar_id' => calendar_id
     end
 
     def update(attrs = {})
+      attrs = convert_dates_in_options(attrs)
       self.sequence = self.sequence.nil? ? 1 : self.sequence + 1
       attrs = self.attributes.merge(attrs)
       result = Event.connection.execute( 
@@ -96,7 +96,7 @@ module GoogleCalendar
           'calendarId' => self.calendar_id, 
           'eventId' => self.id 
         }, 
-        :body => [JSON.dump(attrs)], 
+        :body => [attrs.to_json], 
         :headers => {'Content-Type' => 'application/json'}
       ).data.to_hash.merge('calendar_id' => self.calendar_id)
       self.attributes = result
@@ -111,6 +111,18 @@ module GoogleCalendar
           'eventId' => event_id 
         }
       )
+    end
+
+    def self.convert_dates_in_options(options)
+      options.each_pair{|k,v| 
+        if v.is_a?(Time) || v.is_a?(DateTime) || v.is_a?(Date) 
+          options[k] = v.utc.strftime('%Y-%m-%dT%H:%M:%S-0000') 
+        end
+        if v.is_a? Hash
+          options[k] = convert_dates_in_options(v)
+        end
+      }
+      options
     end
   end
 end
