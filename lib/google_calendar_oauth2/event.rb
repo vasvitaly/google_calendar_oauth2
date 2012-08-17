@@ -5,18 +5,20 @@ module GoogleCalendar
     extend Connection
 
     def initialize(attrs)
-      dt_format = '%Y-%m-%dT%H:%M:%S%z'
+      # dt_format = '%Y-%m-%dT%H:%M:%S%z'
+      attrs['start']['dateTime'] ||= Date.today.to_time.utc
+      attrs['end']['dateTime'] ||= Date.today.to_time.utc
       @id = attrs['id']
       @etag = attrs['etag']
       @summary = attrs['summary']
       @status = attrs['status']
       @html_link = attrs['htmlLink']
-      @created_at = DateTime.parse(attrs['created']).utc
-      @updated_at = DateTime.parse(attrs['updated']).utc
+      @created_at = attrs['created'].is_a?(String) ? DateTime.parse(attrs['created']).utc : attrs['created']
+      @updated_at = attrs['updated'].is_a?(String) ? DateTime.parse(attrs['updated']).utc : attrs['updated']
       @calendar_id = attrs['calendar_id']
       @sequence = attrs['sequence']
-      @start_time = attrs['start']['dateTime'].present? ? DateTime.parse(attrs['start']['dateTime']).utc : Date.today.to_time.utc
-      @end_time = attrs['end']['dateTime'].present? ? DateTime.parse(attrs['end']['dateTime']).utc : Date.today.to_time.utc
+      @start_time = attrs['start']['dateTime'].is_a?(String) ? DateTime.parse(attrs['start']['dateTime']).utc : attrs['start']['dateTime']
+      @end_time = attrs['end']['dateTime'].is_a?(String) ? DateTime.parse(attrs['end']['dateTime']).utc : attrs['end']['dateTime']
     end
 
     alias attributes= initialize
