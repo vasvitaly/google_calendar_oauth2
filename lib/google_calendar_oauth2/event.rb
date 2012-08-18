@@ -6,6 +6,8 @@ module GoogleCalendar
 
     def initialize(attrs)
       # dt_format = '%Y-%m-%dT%H:%M:%S%z'
+      attrs['start'] ||= {}
+      attrs['end'] ||= {}
       attrs['start']['dateTime'] ||= Date.today.to_time.utc
       attrs['end']['dateTime'] ||= Date.today.to_time.utc
       @id = attrs['id']
