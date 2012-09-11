@@ -91,18 +91,18 @@ module GoogleCalendar
     end
 
     def update(attrs = {})
-      attrs = convert_dates_in_options(attrs)
       self.sequence = self.sequence.nil? ? 1 : self.sequence + 1
       attrs = self.attributes.merge(attrs)
-      result = Event.connection.execute( 
-        :api_method => Event.client.events.update, 
+      attrs = self.class.convert_dates_in_options(attrs)
+      params = {:api_method => Event.client.events.update, 
         :parameters => { 
           'calendarId' => self.calendar_id, 
           'eventId' => self.id 
         }, 
         :body => [attrs.to_json], 
         :headers => {'Content-Type' => 'application/json'}
-      ).data.to_hash.merge('calendar_id' => self.calendar_id)
+      }
+      result = Event.connection.execute( params ).data.to_hash.merge('calendar_id' => self.calendar_id)
       self.attributes = result
       self
     end
