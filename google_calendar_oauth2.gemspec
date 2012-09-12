@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'google_calendar_oauth2'
-  s.version     = '0.0.8'
+  s.version     = '0.0.9'
   s.summary     = "Work with Google Calendar using GData 3.0 + OAuth 2.0"
   s.description = "Work with Google Calendar using GData 3.0 + OAuth 2.0, adapted for ruby 1.8.7 + some features"
   s.authors     = ['Parker Young','Vitali Vasileuski']
