@@ -9,10 +9,9 @@ module GoogleCalendar
     end
 
     def self.find(query)
+      rq = Regexp.new query
       list.each do |cal|
-        if cal.summary == query
-          return @cal = cal
-        end
+        return @cal = cal if cal.id == query || cal.summary == query || (cal.summary =~ rq)
       end
       @cal
     end
