@@ -43,7 +43,7 @@ module GoogleCalendar
         :start => {
           :dateTime => start_time.to_time
         },
-        :end => { 
+        :end => {
           :dateTime => end_time.to_time
         }
       }
@@ -71,10 +71,10 @@ module GoogleCalendar
 
     def self.find_by_id(calendar_id, id)
       event = connection.execute(
-        :api_method => client.events.get, 
-        :parameters => { 
-          'calendarId' => calendar_id, 
-          'eventId' => id 
+        :api_method => client.events.get,
+        :parameters => {
+          'calendarId' => calendar_id,
+          'eventId' => id
         }
       )
       new event.data.to_hash.merge 'calendar_id' => calendar_id
@@ -83,9 +83,9 @@ module GoogleCalendar
     def self.create(calendar_id, attrs)
       attrs = convert_dates_in_options(attrs)
       new connection.execute(
-        :api_method => client.events.insert, 
-        :parameters => { 'calendarId' => calendar_id }, 
-        :body => [attrs.to_json],  #JSON.dump()
+        :api_method => client.events.insert,
+        :parameters => { 'calendarId' => calendar_id },
+        :body => attrs.to_json,
         :headers => {'Content-Type' => 'application/json'}
       ).data.to_hash.merge 'calendar_id' => calendar_id
     end
@@ -94,39 +94,37 @@ module GoogleCalendar
       self.sequence = self.sequence.nil? ? 1 : self.sequence + 1
       attrs = self.attributes.merge(attrs)
       attrs = self.class.convert_dates_in_options(attrs)
-      params = {:api_method => Event.client.events.update, 
-        :parameters => { 
-          'calendarId' => self.calendar_id, 
-          'eventId' => self.id 
-        }, 
-        :body => [attrs.to_json], 
+      params = {:api_method => Event.client.events.update,
+        :parameters => {
+          'calendarId' => self.calendar_id,
+          'eventId' => self.id
+        },
+        :body => attrs.to_json,
         :headers => {'Content-Type' => 'application/json'}
       }
       result = Event.connection.execute( params ).data.to_hash.merge('calendar_id' => self.calendar_id)
       self.attributes = result
       self
     end
-  
+
     def self.delete(calendar_id, event_id)
       connection.execute(
-        :api_method => client.events.delete, 
-        :parameters => { 
-          'calendarId' => calendar_id, 
-          'eventId' => event_id 
+        :api_method => client.events.delete,
+        :parameters => {
+          'calendarId' => calendar_id,
+          'eventId' => event_id
         }
       )
     end
 
     def self.convert_dates_in_options(options)
-      options.each_pair{|k,v| 
-        if v.is_a?(Time) || v.is_a?(DateTime) || v.is_a?(Date) 
-          options[k] = v.utc.strftime('%Y-%m-%dT%H:%M:%S-0000') 
+      options.each_pair do |k, v|
+        options[k] = case v
+          when Time, DateTime, Date then v.utc.strftime('%Y-%m-%dT%H:%M:%S-0000')
+          when Hash then convert_dates_in_options(v)
+          else v
         end
-        if v.is_a? Hash
-          options[k] = convert_dates_in_options(v)
-        end
-      }
-      options
+      end
     end
   end
 end
