@@ -2,14 +2,20 @@ Taken from https://github.com/unixcharles/google_calendar_api_v2 and modified fo
 
 All you need to survive a syncronization project with Google Calendar using GData 3.0 + OAuth 2.0
 
+Changes
+-------
+
+0.1.1 - Add app name and app version in request.
+
+
 # Usage
   Create an application.rb file and put the following in it.
 
     require 'sinatra'
     require 'rubygems'
     require 'google_calendar_oauth2'
-
-    client = GoogleCalendar::Client.new "google_client_id", "google_client_secret", "http://localhost:4567/oauth2callback"
+    # "google_client_id", "google_client_secret", "oauth2callback url", "app_name", "app_version"
+    client = GoogleCalendar::Client.new "google_client_id", "google_client_secret", "http://localhost:4567/oauth2callback", "my_gcal_app", "0.1.1"
 
     before do
       unless GoogleCalendar.connection.authorization.access_token || request.path_info =~ /^\/oauth2/
